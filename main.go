@@ -1,48 +1,44 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
-
-	"github.com/gin-gonic/gin"
-	"github.com/thinkerou/favicon"
 
 	ev "github.com/mchmarny/gcputil/env"
 )
 
-const (
-	defaultPort      = "8080"
-	portVariableName = "PORT"
-)
-
 var (
-	release = ev.MustGetEnvVar("RELEASE", "v0.0.1")
-	logger  = log.New(os.Stdout, "[APP] ", 0)
+	logger = log.New(os.Stdout, "", 0)
+	port   = ev.MustGetEnvVar("PORT", "8080")
 )
 
 func main() {
 
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.New()
-	r.Use(gin.Recovery())
-	r.Use(favicon.New("./favicon.ico"))
+	initHandlers()
 
-	// routes
-	r.GET("/", defaultRequestHandler)
-	r.GET("/health", healthHandler)
+	mux := http.NewServeMux()
 
-	// api
-	v1 := r.Group("/v1")
-	{
-		v1.GET("/message/:msg", apiRequestHandler)
+	// Static
+	mux.Handle("/static/", http.StripPrefix("/static/",
+		http.FileServer(http.Dir("static"))))
+
+	// Handlers
+	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, "ok")
+	})
+
+	// Server
+	hostPort := net.JoinHostPort("0.0.0.0", port)
+	server := &http.Server{
+		Addr:    hostPort,
+		Handler: mux,
 	}
 
-	// server
-	port := ev.MustGetEnvVar(portVariableName, defaultPort)
-	hostPost := net.JoinHostPort("0.0.0.0", port)
-	logger.Printf("Server starting: %s \n", hostPost)
-	if err := r.Run(hostPost); err != nil {
-		logger.Fatal(err)
-	}
+	logger.Printf("Server starting: %s \n", hostPort)
+	logger.Fatal(server.ListenAndServe())
+
 }

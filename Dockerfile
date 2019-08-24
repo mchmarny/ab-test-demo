@@ -12,5 +12,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 
 FROM gcr.io/distroless/static:nonroot
 COPY --from=builder /src/app .
-COPY --from=builder /src/favicon.ico .
+COPY --from=builder /src/template/ ./template/
+COPY --from=builder /src/static/ ./static/
 ENTRYPOINT ["./app"]

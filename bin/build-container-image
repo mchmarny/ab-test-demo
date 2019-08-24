@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# modules
 go mod tidy
 go mod vendor
 
 gcloud builds submit \
     --project cloudylabs-public \
-    --tag gcr.io/cloudylabs-public/gotemplate:0.0.1 .
+    --tag gcr.io/cloudylabs-public/ab-test-demo:a .
