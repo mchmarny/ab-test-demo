@@ -1,0 +1,9 @@
+#!/bin/bash
+
+gcloud beta run deploy signup \
+	--cluster kn08 \
+	--cluster-location us-west1-c \
+	--image gcr.io/cloudylabs-public/ab-test-demo:a \
+	--namespace demo \
+	--platform gke \
+	--set-env-vars "VERSION=a"

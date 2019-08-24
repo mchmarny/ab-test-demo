@@ -27,6 +27,7 @@ func main() {
 
 	// Handlers
 	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/form", formHandler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprint(w, "ok")
 	})

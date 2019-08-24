@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
 
 	ev "github.com/mchmarny/gcputil/env"
+	mt "github.com/mchmarny/gcputil/metric"
 )
 
 var (
 	templates  *template.Template
 	queryLimit = ev.MustGetIntEnvVar("QUERY_LIMIT", 50)
+	version    = ev.MustGetEnvVar("VERSION", "a")
+	mtClient   *mt.Client
 )
 
 func initHandlers() {
@@ -19,16 +23,38 @@ func initHandlers() {
 		logger.Fatalf("Error while parsing templates: %v", err)
 	}
 	templates = tmpls
+
+	c, err := mt.NewClient(context.Background())
+	if err != nil {
+		logger.Fatalf("Error while creating metrics client: %v", err)
+	}
+	mtClient = c
+
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	data := make(map[string]interface{})
-	version := ev.MustGetEnvVar("VERSION", "A")
-	data["version"] = version
-	data["release"] = ev.MustGetEnvVar("RELEASE",
-		fmt.Sprintf("v0.0.1-%s", version))
-
-	if err := templates.ExecuteTemplate(w, "index", data); err != nil {
+	meterAction(r, "visit")
+	if err := templates.ExecuteTemplate(w, "index", getData()); err != nil {
 		logger.Printf("Error in view template: %s", err)
 	}
+}
+
+func formHandler(w http.ResponseWriter, r *http.Request) {
+	meterAction(r, "click")
+	if err := templates.ExecuteTemplate(w, "form", getData()); err != nil {
+		logger.Printf("Error in view template: %s", err)
+	}
+}
+
+func meterAction(r *http.Request, measurement string) {
+	if err := mtClient.Publish(r.Context(),
+		"ab-test-form", measurement, int64(1)); err != nil {
+	}
+}
+
+func getData() map[string]interface{} {
+	data := make(map[string]interface{})
+	data["version"] = version
+	data["release"] = fmt.Sprintf("v0.0.1-%s", version)
+	return data
 }

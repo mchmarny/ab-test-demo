@@ -1,0 +1,8 @@
+#!/bin/bash
+
+gcloud beta run deploy signup \
+	--allow-unauthenticated \
+	--image gcr.io/cloudylabs-public/ab-test-demo:b \
+	--platform managed \
+	--region us-central1 \
+	--set-env-vars "VERSION=b"

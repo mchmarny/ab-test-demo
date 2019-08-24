@@ -1,0 +1,17 @@
+#!/bin/bash
+
+go mod tidy
+go mod vendor
+
+
+cp template/index-a.html template/index.html
+
+gcloud builds submit \
+    --project cloudylabs-public \
+    --tag gcr.io/cloudylabs-public/ab-test-demo:a .
+
+cp template/index-b.html template/index.html
+
+gcloud builds submit \
+    --project cloudylabs-public \
+    --tag gcr.io/cloudylabs-public/ab-test-demo:b .
