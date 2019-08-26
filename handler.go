@@ -10,11 +10,16 @@ import (
 	mt "github.com/mchmarny/gcputil/metric"
 )
 
+const (
+	metricSourceID      = "ab-test-demo"
+	revisionHeaderParam = "Revision-Version"
+)
+
 var (
-	templates  *template.Template
-	queryLimit = ev.MustGetIntEnvVar("QUERY_LIMIT", 50)
-	version    = ev.MustGetEnvVar("VERSION", "a")
-	mtClient   *mt.Client
+	templates       *template.Template
+	queryLimit      = ev.MustGetIntEnvVar("QUERY_LIMIT", 50)
+	revisionVersion = ev.MustGetEnvVar("VERSION", "a")
+	mtClient        *mt.Client
 )
 
 func initHandlers() {
@@ -24,7 +29,7 @@ func initHandlers() {
 	}
 	templates = tmpls
 
-	c, err := mt.NewClientWithSource(context.Background(), "ab-test-demo")
+	c, err := mt.NewClientWithSource(context.Background(), metricSourceID)
 	if err != nil {
 		logger.Fatalf("Error while creating metrics client: %v", err)
 	}
@@ -33,14 +38,16 @@ func initHandlers() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	meterAction(r, "visit")
+	meterAction(r, "visits")
+	w.Header().Set(revisionHeaderParam, revisionVersion)
 	if err := templates.ExecuteTemplate(w, "index", getData()); err != nil {
 		logger.Printf("Error in view template: %s", err)
 	}
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
-	meterAction(r, "click")
+	meterAction(r, "clicks")
+	w.Header().Set(revisionHeaderParam, revisionVersion)
 	if err := templates.ExecuteTemplate(w, "form", getData()); err != nil {
 		logger.Printf("Error in view template: %s", err)
 	}
@@ -54,7 +61,7 @@ func meterAction(r *http.Request, measurement string) {
 
 func getData() map[string]interface{} {
 	data := make(map[string]interface{})
-	data["version"] = version
-	data["release"] = fmt.Sprintf("v0.0.1-%s", version)
+	data["version"] = revisionVersion
+	data["release"] = fmt.Sprintf("v0.0.1-%s", revisionVersion)
 	return data
 }

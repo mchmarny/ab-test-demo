@@ -7,10 +7,10 @@ if [ "$1" == "b" ]; then
 fi
 
 gcloud beta run deploy signup \
-	--cluster cr07 \
-	--cluster-location us-west1-c \
 	--image "gcr.io/cloudylabs-public/ab-test-demo:${v}" \
 	--namespace demo \
 	--platform gke \
 	--set-env-vars "VERSION=${v}"
 
+# gcloud alpha run services set-traffic signup \
+# 	--to-revision signup-h297t=100
