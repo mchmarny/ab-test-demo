@@ -1,6 +1,6 @@
 #!/bin/bash
 
-u="https://signup-2gtouos2pq-uc.a.run.app/"
+u="https://signup.demo.cloudylabs.dev/"
 f=10
 
 if [ "$1" == "b" ]; then

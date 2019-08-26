@@ -1,8 +1,14 @@
 #!/bin/bash
 
+v="a"
+
+if [ "$1" == "b" ]; then
+    v="b"
+fi
+
 gcloud beta run deploy signup \
 	--allow-unauthenticated \
-	--image gcr.io/cloudylabs-public/ab-test-demo:b \
+	--image "gcr.io/cloudylabs-public/ab-test-demo:${v}" \
 	--platform managed \
 	--region us-central1 \
-	--set-env-vars "VERSION=b"
+	--set-env-vars "VERSION=${v}"
