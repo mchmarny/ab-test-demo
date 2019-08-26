@@ -7,7 +7,7 @@ This utility simplifies the entire process related to creating creating and conf
 ## Import
 
 ```shell
-import "github.com/mchmarny/gcputil/pkg/metric"
+import "github.com/mchmarny/gcputil/metric"
 ```
 
 ## Usage
@@ -22,4 +22,4 @@ err = c.Publish(ctx, "thermometer-1", "temperature", float64(36.1))
 
 ## View
 
-![Chart](img/sd.png "Stackdriver Chart")
+![Chart](./sd.png "Stackdriver Chart")

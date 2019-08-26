@@ -1,14 +1,14 @@
 #!/bin/bash
 
 u="https://signup.demo.cloudylabs.dev/"
-f=10
+f=20
 
 if [ "$1" == "b" ]; then
     f=2
 fi
 
-
-for i in $(seq 1 1000); do
+# run for 24rs with 2req/1sec
+for i in $(seq 1 2880); do
     # always visit
     curl -s "${u}/?i=${i}" > /dev/null
 

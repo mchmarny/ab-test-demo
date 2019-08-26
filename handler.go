@@ -24,7 +24,7 @@ func initHandlers() {
 	}
 	templates = tmpls
 
-	c, err := mt.NewClient(context.Background())
+	c, err := mt.NewClientWithSource(context.Background(), "ab-test-demo")
 	if err != nil {
 		logger.Fatalf("Error while creating metrics client: %v", err)
 	}
@@ -47,8 +47,8 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func meterAction(r *http.Request, measurement string) {
-	if err := mtClient.Publish(r.Context(),
-		"ab-test-form", measurement, int64(1)); err != nil {
+	if err := mtClient.PublishForSource(r.Context(), measurement, 1); err != nil {
+		logger.Printf("Error publishing metrics: %s", err)
 	}
 }
 
