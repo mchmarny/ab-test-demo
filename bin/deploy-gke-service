@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gcloud beta run deploy signup \
-	--cluster kn08 \
+	--cluster cr07 \
 	--cluster-location us-west1-c \
 	--image gcr.io/cloudylabs-public/ab-test-demo:a \
 	--namespace demo \
