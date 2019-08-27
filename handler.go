@@ -18,7 +18,7 @@ const (
 var (
 	templates       *template.Template
 	queryLimit      = ev.MustGetIntEnvVar("QUERY_LIMIT", 50)
-	revisionVersion = ev.MustGetEnvVar("VERSION", "a")
+	revisionVersion = ev.MustGetEnvVar("VERSION", "b")
 	mtClient        *mt.Client
 )
 
