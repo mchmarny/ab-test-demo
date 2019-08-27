@@ -139,6 +139,19 @@ To compare how the version "A" and "B" should look like take a look at these alr
 * http://signup-b.demo.cloudylabs.dev
 
 
+## Monitoring
+
+In addition to the build in Knative metrics that are available on `Revision` level in Stackdriver, this example is also instrumented with custom metrics tracking the visits and the number of user sessions which resulted in sign up.
+
+To view the revision diagram, go to Stackdriver and select "Metric Explorer"
+
+![](img/metricexp.png)
+
+In Metric Explorer type "Revision Count" and select the "knative.dev/serving/revision/request_count". This will show use the number of requests reaching the revision in Cloud Run on GKE
+
+![](img/metric.png)
+
+Now filter on "Service Name" and select "signup" and group by "revision name" and use "count" aggregation. Assuming there is actual traffic to your service, you should see now time series chart for each one of your revisions.
 
 ## Disclaimer
 
