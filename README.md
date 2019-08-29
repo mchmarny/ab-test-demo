@@ -153,6 +153,8 @@ In Metric Explorer type "Revision Count" and select the "knative.dev/serving/rev
 
 Now filter on "Service Name" and select "signup" and group by "revision name" and use "count" aggregation. Assuming there is actual traffic to your service, you should see now time series chart for each one of your revisions.
 
+![](img/custom-metrics.png)
+
 In addition to the built-in Knative metrics that are already available on Revision-level in Stackdriver, this example is also instrumented with custom metrics tracking the visits and the number of user sessions which resulted in sign up.
 
 ## Disclaimer
