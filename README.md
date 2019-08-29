@@ -24,7 +24,7 @@ gcloud components install alpha
 
 ## Setup
 
-> Throughout this sample I'm going to be using pre-build image of a demo application. This image is publicly accessible. If you prefer, you can build your own images from this repository using the [bin/build-images](bin/build-images) script. As with any script, review it before executing it.
+> Throughout this sample I'm going to be using pre-build image of a demo application. This image is publicly accessible (`gcr.io/cloudylabs-public/ab-test-demo` with `a` and `b` versions). If you prefer, you can build your own images from this repository using the [bin/build-images](bin/build-images) script. As with any script, review it before executing it.
 
 ## Version "A"
 
