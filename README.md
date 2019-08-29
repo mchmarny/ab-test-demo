@@ -1,16 +1,18 @@
 # ab-test-demo
 
-In simplest terms, `A/B Testing`, in application development terms, implies an ability to compare two versions of the same application in a controlled environment to measure properties of each version (e.g. users' behavior or application performance).
+In simplest terms of application development, `A/B Testing` implies an ability to compare two versions of the same application in a controlled environment to measure some behavior (e.g. use response) or properties (e.g. performance) of each version.
 
-In this example, I will overview how to configure a simple A/B testing experiment on Cloud Run.
+While proper A/B testing will require more specialized platform and tooling, in this example I will overview a very simple experiment on Cloud Run.
 
 ## Scenario
 
-Imagine you published a marketing site aiming to collect users' sign ups. After a couple of days, the marketing department tells you that they expected more sign ups and think that the low number of user registrations is related to the location of the sign up button (bottom of the page). They recommend you move the button to the top of the page to get more sign ups.
+Imagine you published a corporate site aiming to collect users' sign ups for some marketing campaign. After a couple of days, the marketing department tells you that they expected more sign ups. And, that they think that the low number of user registrations is related to the location of the sign up button (very bottom of the page). Naturally, they recommend you move the button to the top of the page to get more sign ups.
 
 ![](img/signup.png)
 
-Now, you, as a developer, made data-driven decisions so you want to put together an experiment wherein subset of applications users will be seeing the new application layout and the rest will continue seeing the current version of the application.
+Naturally, you as a data-driven developer, want to put together an experiment wherein subset of the applications users will be seeing the new application layout and the rest will continue seeing the current version. The number of sign ups form each version will indicate optimal location for the sign up button.
+
+> I know, this is simplistic scenario but for the purposes of this sample this is all we need.
 
 ## Pre-requirements
 
@@ -22,7 +24,7 @@ gcloud components install alpha
 
 ## Setup
 
-> Throughout this sample I'm going to be using pre-build images of a demo application. These images are publicly accessible, but, if you want to build your own versions from this repository you can do so using the [bin/build-images](bin/build-images) script. As with any script, review it before executing it.
+> Throughout this sample I'm going to be using pre-build image of a demo application. This image is publicly accessible. If you prefer, you can build your own images from this repository using the [bin/build-images](bin/build-images) script. As with any script, review it before executing it.
 
 ## Version "A"
 
@@ -35,10 +37,10 @@ gcloud beta run deploy signup \
 
 > Note, depending on how you configured your `gcloud`, you may also have to append the `--cluster` and `--cluster-location` flags or run. More information on how to configure these flags by default see [Quickstart: Deploy to Cloud Run on GKE](https://cloud.google.com/run/docs/quickstarts/prebuilt-deploy-gke)
 
-The `gcloud` command will return a URL to the active revision which is serving traffic, should look something like this:
+The `gcloud` command will return a URL to the active revision which is serving traffic. This should look something like this:
 
 ```shell
-Deploying container to Cloud Run on GKE service [signup] in namespace [demo] of cluster [cr-prod]
+Deploying container to Cloud Run on GKE service [signup] in namespace [demo] of cluster [cr-demo]
 ✓ Deploying... Done.
   ✓ Creating Revision...
   ✓ Routing traffic...
@@ -46,12 +48,12 @@ Done.
 Service [signup] revision [signup-2zpw4] has been deployed and is serving traffic at http://signup.demo.cloudylabs.dev
 ```
 
-In the above example, my `gcloud` configuration was already configured with defaults for name of the cluster (`cr-prod`), its location (`us-east1` region), and the target namespace (`demo`). The same deployment with all these flags in line would look like this:
+In the above example, my `gcloud` configuration was already configured with defaults for name of the cluster (`cr-demo`), its location (`us-east1` region), and the target namespace (`demo`). The same deployment with all these flags in line would look like this:
 
 ```shell
 gcloud beta run deploy signup \
     --image gcr.io/cloudylabs-public/ab-test-demo:a \
-    --cluster cr-prod \
+    --cluster cr-demo \
     --cluster-location us-east1 \
     --namespace demo
 ```
@@ -60,7 +62,7 @@ To see how the deployed version of the application should look like see https://
 
 ## Version "B"
 
-Cloud Run does a lot of things automatically so to implement my experiment I will first have to take it out of the "auto-pilot" mode so I can manage the revisions manually. To do that, I'll list the revisions:
+Cloud Run does a lot of things automatically (in this case revision management). So, to implement my experiment I will first take my application out of the "auto-pilot" mode so I can manage the revisions manually. To do that, I'll first list the revisions:
 
 ```shell
 gcloud alpha run revisions list --service signup
@@ -76,9 +78,7 @@ For cluster [cr-prod] in [us-east1]:
 ✔  signup-m89nj          signup   2019-08-26 22:10:57 UTC
 ```
 
-> Note, depending on how fast you are, the `yes` indicator for `ACTIVE` may not always be there as right now the revision doesn't retain that attribute when it scales down to 0
-
-Once you have captured the revision ID, you can tell Cloud Run to that you want to manage the revisions manually but setting traffic 100% explicitly to that revision.
+Once you have captured the revision ID, you can tell Cloud Run to that you want to manage the revisions manually by setting traffic 100% explicitly to that revision.
 
 > Make sure to replace the revision ID in the following command before running it
 
@@ -94,7 +94,7 @@ Done.
 Traffic set to signup-9p644=100.
 ```
 
-Now we can deploy new revision to Cloud Run and will NOT take any traffic. 100% of the traffic will contuse to be routed to the revision we set above. We are ready to deploy the "B" version.
+Now we can deploy new revisions of this application to Cloud Run and they will NOT take any traffic. 100% of the traffic will contuse to be routed to the revision you set above. Now I'm ready to deploy the "B" version.
 
 ```shell
 gcloud beta run deploy signup \
@@ -109,7 +109,9 @@ Now if you list the service revisions you should see new one
 gcloud alpha run revisions list --service signup
 ```
 
-Our version "B" will be the top most on that returned list and the version "A" will be the third one from the top. There is a "side-effect" revision created right now. Fix for this is coming as well.
+Our version "B" will be the top most on that returned list and the version "A" will be the third one from the top.
+
+> There is a little "side-effect" revision created right now. THis will be removed in subsequent releases.
 
 ```shell
    REVISION      ACTIVE  SERVICE  DEPLOYED
@@ -141,8 +143,6 @@ To compare how the version "A" and "B" should look like take a look at these alr
 
 ## Monitoring
 
-In addition to the build in Knative metrics that are available on `Revision` level in Stackdriver, this example is also instrumented with custom metrics tracking the visits and the number of user sessions which resulted in sign up.
-
 To view the revision diagram, go to Stackdriver and select "Metric Explorer"
 
 ![](img/metricexp.png)
@@ -152,6 +152,8 @@ In Metric Explorer type "Revision Count" and select the "knative.dev/serving/rev
 ![](img/metric.png)
 
 Now filter on "Service Name" and select "signup" and group by "revision name" and use "count" aggregation. Assuming there is actual traffic to your service, you should see now time series chart for each one of your revisions.
+
+In addition to the built-in Knative metrics that are already available on Revision-level in Stackdriver, this example is also instrumented with custom metrics tracking the visits and the number of user sessions which resulted in sign up.
 
 ## Disclaimer
 
