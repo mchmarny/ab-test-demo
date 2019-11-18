@@ -8,7 +8,7 @@ fi
 
 gcloud beta run deploy signup \
 	--allow-unauthenticated \
-	--image "gcr.io/cloudylabs-public/ab-test-demo:${v}" \
+	--image "gcr.io/${PROJECT}/ab-test-demo:${v}" \
 	--platform managed \
 	--region us-central1 \
 	--set-env-vars "VERSION=${v}"

@@ -3,15 +3,10 @@
 go mod tidy
 go mod vendor
 
+PROJECT=$(gcloud config get-value project)
 
 cp template/index-a.html template/index.html
-
-gcloud builds submit \
-    --project cloudylabs-public \
-    --tag gcr.io/cloudylabs-public/ab-test-demo:a .
+gcloud builds submit --tag "gcr.io/${PROJECT}/ab-test-demo:a" .
 
 cp template/index-b.html template/index.html
-
-gcloud builds submit \
-    --project cloudylabs-public \
-    --tag gcr.io/cloudylabs-public/ab-test-demo:b .
+gcloud builds submit --tag "gcr.io/${PROJECT}/ab-test-demo:b" .
